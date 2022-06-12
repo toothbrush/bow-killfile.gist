@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         HN killfile
-// @namespace    http://tampermonkey.net/
-// @version      0.1
+// @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
+// @version      0.2
 // @description  block trolls
-// @author       You
+// @author       toothbrush
 // @match        https://news.ycombinator.com/item*
 // @match        https://news.ycombinator.com/news*
 // @match        https://news.ycombinator.com/

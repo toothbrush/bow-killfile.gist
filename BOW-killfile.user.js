@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name         HN killfile
 // @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
-// @version      0.3
+// @updateURL    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/main/BOW-killfile.user.js
+// @version      0.4
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*

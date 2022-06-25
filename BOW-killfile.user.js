@@ -43,6 +43,7 @@ const killfile = [
     "Terry_Roll",
     "thegrimmest",
     "vmception",
+    "xanaxagoras",
 ];
 
 function getElementByXpath(path) {

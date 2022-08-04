@@ -42,6 +42,7 @@ const killfile = [
     "SemanticStrengh",
     "Terry_Roll",
     "thegrimmest",
+    "thrown_22",
     "vmception",
     "xanaxagoras",
 ];

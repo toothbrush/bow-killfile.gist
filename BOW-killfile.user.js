@@ -15,6 +15,7 @@
 // ==/UserScript==
 
 const killfile = [
+    "AmericanChopper",
     "AnhTho_FR", // commercial spam
     "alephnan",
     "anotherman554",

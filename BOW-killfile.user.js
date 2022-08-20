@@ -3,7 +3,7 @@
 // @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
 // @updateURL    https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
 // @downloadURL  https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
-// @version      0.8
+// @version      0.9
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -19,7 +19,9 @@ const killfile = [
     "AnhTho_FR", // commercial spam
     "alephnan",
     "anotherman554",
+    "barry-cotter",
     "burrows",
+    "bushbaba",
     "CamperBob",
     "CamperBob2",
     "chrisseaton",
@@ -46,6 +48,7 @@ const killfile = [
     "thegrimmest",
     "thrown_22",
     "vmception",
+    "white_dragon88",
     "xanaxagoras",
 ];
 

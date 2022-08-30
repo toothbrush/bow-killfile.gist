@@ -3,7 +3,7 @@
 // @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
 // @updateURL    https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
 // @downloadURL  https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
-// @version      0.10
+// @version      0.11
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -112,6 +112,7 @@ function mutationHandler (mutationRecords) {
     var replaceArry = [
         [/(h)acker *(n)ews/gi, 'Bad Orange Website'],
         [/\bHN\b/g, 'BOW'],
+        [/a couple(?! of)/g, '_a couple of_'],
         // etc.
     ];
     var numTerms = replaceArry.length;

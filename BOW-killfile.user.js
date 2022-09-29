@@ -3,7 +3,7 @@
 // @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
 // @updateURL    https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
 // @downloadURL  https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
-// @version      0.11
+// @version      0.12
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -60,8 +60,20 @@ function getElementByXpath(path) {
 
 var gradient_css = `
 .wrapper {
-background: linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3);
-background-size: 100% 100%;
+  background: linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3);
+  background-size: 100% 100%;
+}
+
+/* Make downvoted posts visible if i want */
+::-moz-selection {
+  color: black;
+  background: yellow;
+}
+
+::selection {
+  color: black;
+  background: yellow;
+}
 `;
 GM_addStyle(gradient_css);
 let header = getElementByXpath('//*[@id="hnmain"]/tbody/tr/td');

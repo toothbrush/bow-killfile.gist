@@ -3,7 +3,7 @@
 // @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
 // @updateURL    https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
 // @downloadURL  https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
-// @version      0.12
+// @version      0.13
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -123,6 +123,7 @@ function mutationHandler (mutationRecords) {
     // https://stackoverflow.com/a/24419809 - Replace many text terms, using Tampermonkey, without affecting URLs and not looking for classes or ids
     var replaceArry = [
         [/(h)acker *(n)ews/gi, 'Bad Orange Website'],
+        [/(['"“”‘’„”«»])hacker(?(1)['"“”‘’„”«»]) *news/gi, '"Bad" Orange Website'],
         [/\bHN\b/g, 'BOW'],
         [/a couple(?! of)/g, '_a couple of_'],
         // etc.

@@ -125,7 +125,7 @@ function mutationHandler (mutationRecords) {
         [/(h)acker *(n)ews/gi, 'Bad Orange Website'],
         [/(['"“”‘’„”«»])hacker(?(1)['"“”‘’„”«»]) *news/gi, '"Bad" Orange Website'],
         [/\bHN\b/g, 'BOW'],
-        [/a couple(?! of)/g, '_a couple of_'],
+        [/a couple(?! of)/g, 'a couple of'],
         // etc.
     ];
     var numTerms = replaceArry.length;

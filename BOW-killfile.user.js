@@ -129,7 +129,7 @@ function mutationHandler (mutationRecords) {
     // https://stackoverflow.com/a/24419809 - Replace many text terms, using Tampermonkey, without affecting URLs and not looking for classes or ids
     var replaceArry = [
         [/(h)acker *(n)ews/gi, 'Bad Orange Website'],
-        [/(['"“”‘’„”«»])hacker(?(1)['"“”‘’„”«»]) *news/gi, '"Bad" Orange Website'],
+        [/['"“”‘’„”«»]hacker['"“”‘’„”«»] *news/gi, '"Bad" Orange Website'],
         [/\bHN\b/g, 'BOW'],
         [/a couple(?! of)/g, 'a couple of'],
         // etc.

@@ -3,14 +3,13 @@
 // @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
 // @updateURL    https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
 // @downloadURL  https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
-// @version      0.16
+// @version      0.17
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
 // @match        https://news.ycombinator.com/news*
 // @match        https://news.ycombinator.com/
 // @match        https://hn.algolia.com/*
-// @grant        GM_addStyle
 // @run-at       document-idle
 // ==/UserScript==
 
@@ -64,24 +63,30 @@ function getElementByXpath(path) {
     return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 }
 
-var gradient_css = `
-.wrapper {
+// I dunno, maybe this is more portable. Hm.
+function GM_addStyle(css) {
+  const style = document.getElementById("GM_addStyleBy8626") || (function() {
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.id = "GM_addStyleBy8626";
+    document.head.appendChild(style);
+    return style;
+  })();
+  const sheet = style.sheet;
+  sheet.insertRule(css, (sheet.rules || sheet.cssRules || []).length);
+}
+
+GM_addStyle(`.wrapper {
   background: linear-gradient(124deg, #ff2400, #e81d1d, #e8b71d, #e3e81d, #1de840, #1ddde8, #2b1de8, #dd00f3, #dd00f3);
   background-size: 100% 100%;
-}
+}`)
 
 /* Make downvoted posts visible if i want */
-::-moz-selection {
+GM_addStyle(`::selection {
   color: black;
   background: yellow;
-}
+}`)
 
-::selection {
-  color: black;
-  background: yellow;
-}
-`;
-GM_addStyle(gradient_css);
 let header = getElementByXpath('//*[@id="hnmain"]/tbody/tr/td');
 header.classList.add("wrapper");
 let mainTable = getElementByXpath('//*[@id="hnmain"]');

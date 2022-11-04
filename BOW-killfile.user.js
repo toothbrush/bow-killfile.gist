@@ -3,7 +3,7 @@
 // @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
 // @updateURL    https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
 // @downloadURL  https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
-// @version      0.20
+// @version      0.21
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -91,6 +91,9 @@ GM_addStyle(`::selection {
   color: black;
   background: yellow;
 }`)
+
+/* Skip adjacent spacers */
+GM_addStyle(`tr.spacer + tr.spacer { background: grey !important; display: none !important; }`)
 
 let header = getElementByXpath('//*[@id="hnmain"]/tbody/tr/td');
 header.classList.add("wrapper");

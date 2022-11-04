@@ -3,7 +3,7 @@
 // @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
 // @updateURL    https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
 // @downloadURL  https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
-// @version      0.18
+// @version      0.19
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -114,7 +114,7 @@ mainTable.style.backgroundColor = "#abffe6";
 
         var comment_text = thing.getElementsByClassName("commtext");
         if(comment_text.length == 1) {
-            var comment = comment_text[0].innerHTML;
+            var comment = (comment_text[0].innerText || comment_text[0].textContent);
             if(comment.length < 160) {
                 // it's a tweet!
                 style_rule = `#\\3${thing.id.charAt(0)} ${thing.id.slice(1)} { background: red !important; display: none !important; }`;

@@ -3,7 +3,7 @@
 // @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
 // @updateURL    https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
 // @downloadURL  https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
-// @version      0.17
+// @version      0.18
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -103,13 +103,22 @@ mainTable.style.backgroundColor = "#abffe6";
 
         if(maybeUser.length == 1) {
             var username = maybeUser[0].innerHTML;
-            //console.log(username);
             if(killfile.includes(username)) {
                 // block them!
                 // also omg https://mothereff.in/css-escapes
                 var style_rule = `#\\3${thing.id.charAt(0)} ${thing.id.slice(1)} { background: purple !important; display: none !important; }`;
                 GM_addStyle(style_rule);
                 //thing.parentNode.removeChild(thing);
+            };
+        };
+
+        var comment_text = thing.getElementsByClassName("commtext");
+        if(comment_text.length == 1) {
+            var comment = comment_text[0].innerHTML;
+            if(comment.length < 160) {
+                // it's a tweet!
+                style_rule = `#\\3${thing.id.charAt(0)} ${thing.id.slice(1)} { background: red !important; display: none !important; }`;
+                GM_addStyle(style_rule);
             };
         };
     });

@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         HN killfile
+// @name         BOW killfile
 // @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
 // @updateURL    https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
 // @downloadURL  https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
-// @version      0.19
+// @version      0.20
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -57,6 +57,11 @@ const killfile = [
     "wyager",
     "xanaxagoras",
     "zackees",
+];
+
+const boring_topics = [
+    "musk",
+    "twitter",
 ];
 
 function getElementByXpath(path) {
@@ -119,6 +124,29 @@ mainTable.style.backgroundColor = "#abffe6";
                 // it's a tweet!
                 style_rule = `#\\3${thing.id.charAt(0)} ${thing.id.slice(1)} { background: red !important; display: none !important; }`;
                 GM_addStyle(style_rule);
+            };
+        };
+
+        if(window.location.href == "https://news.ycombinator.com/news") {
+            // home page, hide things differently
+            var title = thing.getElementsByClassName("titleline");
+            if(title.length == 1) {
+                var actual_title = (title[0].innerText || title[0].textContent);
+
+                var is_boring = false;
+                [].forEach.call(boring_topics, function (topic) {
+                    if(actual_title.toLowerCase().includes(topic.toLowerCase())) {
+                        is_boring = true;
+                    }
+                });
+
+                if(is_boring) {
+                    console.log(`Ditching boring article: "${actual_title}"`);
+                    var thing1 = thing
+                    var thing2 = thing.nextSibling
+                    thing1.parentNode.removeChild(thing1);
+                    thing2.parentNode.removeChild(thing2);
+                };
             };
         };
     });

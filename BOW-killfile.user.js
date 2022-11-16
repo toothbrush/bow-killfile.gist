@@ -95,6 +95,7 @@ GM_addStyle(`::selection {
 
 /* Skip adjacent spacers */
 GM_addStyle(`tr.spacer + tr.spacer { background: grey !important; display: none !important; }`)
+GM_addStyle(`body { background: black !important; }`)
 
 let header = getElementByXpath('//*[@id="hnmain"]/tbody/tr/td');
 header.classList.add("wrapper");

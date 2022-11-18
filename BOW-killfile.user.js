@@ -101,6 +101,8 @@ let header = getElementByXpath('//*[@id="hnmain"]/tbody/tr/td');
 header.classList.add("wrapper");
 let mainTable = getElementByXpath('//*[@id="hnmain"]');
 mainTable.style.backgroundColor = "#abffe6";
+let anotherHeader = getElementByXpath('//td[@bgcolor="#ff6600"]');
+anotherHeader.classList.add("wrapper");
 
 (function() {
     'use strict';

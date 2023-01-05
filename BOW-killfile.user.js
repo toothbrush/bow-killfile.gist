@@ -3,7 +3,7 @@
 // @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
 // @updateURL    https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
 // @downloadURL  https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
-// @version      0.36
+// @version      0.37
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -197,7 +197,6 @@ function mutationHandler (mutationRecords) {
         [/a couple(?! of)/g, 'a couple of'],
         // etc.
     ];
-    var numTerms = replaceArry.length;
     var txtWalker = document.createTreeWalker (
         document.body,
         NodeFilter.SHOW_TEXT,
@@ -214,12 +213,12 @@ function mutationHandler (mutationRecords) {
     );
     var txtNode = null;
 
-    while (txtNode = txtWalker.nextNode() ) {
-        var oldTxt = txtNode.nodeValue;
-
-        for (var J = 0; J < numTerms; J++) {
+    for (var J = 0; J < replaceArry.length; J++) {
+        document.title = document.title.replace(replaceArry[J][0], replaceArry[J][1]);
+        while (txtNode = txtWalker.nextNode() ) {
+            var oldTxt = txtNode.nodeValue;
             oldTxt = oldTxt.replace(replaceArry[J][0], replaceArry[J][1]);
+            txtNode.nodeValue = oldTxt;
         }
-        txtNode.nodeValue = oldTxt;
     }
 }

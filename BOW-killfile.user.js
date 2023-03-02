@@ -3,7 +3,7 @@
 // @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
 // @updateURL    https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
 // @downloadURL  https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
-// @version      0.45
+// @version      0.46
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -41,6 +41,7 @@ const killfile = [
     "germandiago",
     "GoblinSlayer",
     "Gordonjcp",
+    "gowld",
     "HN_is_for_gemes", // sheesh
     "irrational", // hates wife
     "Jensson",

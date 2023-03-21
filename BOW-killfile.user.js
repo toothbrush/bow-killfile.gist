@@ -3,7 +3,7 @@
 // @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
 // @updateURL    https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
 // @downloadURL  https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
-// @version      0.51
+// @version      0.52
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -208,8 +208,11 @@ function mutationHandler (mutationRecords) {
         [/['"“”‘’„”«»]hacker['"“”‘’„”«»] *news/gi, '"Bad" Orange Website'],
         [/\bHN\b/g, 'BOW'],
         [/a couple(?! of)/g, 'a couple of'],
+        [/\bcloud\b/g, "other people's computer"],
         [/\bGPT\b/g, 'Magic'],
         [/\bAI\b/g, 'MAGIC'],
+        [/\bOpenAI\b/gi, 'Open Art Thieves'],
+        [/\b(an? )?LLM\b/g, 'pixie dust'],
         // etc.
     ];
     var txtWalker = document.createTreeWalker (

@@ -228,10 +228,13 @@ function mutationHandler (mutationRecords) {
 
     for (var J = 0; J < replaceArry.length; J++) {
         document.title = document.title.replace(replaceArry[J][0], replaceArry[J][1]);
-        while (txtNode = txtWalker.nextNode() ) {
-            var oldTxt = txtNode.nodeValue;
-            oldTxt = oldTxt.replace(replaceArry[J][0], replaceArry[J][1]);
-            txtNode.nodeValue = oldTxt;
+    }
+    while (txtNode = txtWalker.nextNode() ) {
+        var oldTxt = txtNode.nodeValue;
+        for (var K = 0; K < replaceArry.length; K++) {
+
+            oldTxt = oldTxt.replace(replaceArry[K][0], replaceArry[K][1]);
         }
+        txtNode.nodeValue = oldTxt;
     }
 }

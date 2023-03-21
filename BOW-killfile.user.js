@@ -208,6 +208,8 @@ function mutationHandler (mutationRecords) {
         [/['"“”‘’„”«»]hacker['"“”‘’„”«»] *news/gi, '"Bad" Orange Website'],
         [/\bHN\b/g, 'BOW'],
         [/a couple(?! of)/g, 'a couple of'],
+        [/\bGPT\b/g, 'Magic'],
+        [/\bAI\b/g, 'MAGIC'],
         // etc.
     ];
     var txtWalker = document.createTreeWalker (

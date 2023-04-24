@@ -3,7 +3,7 @@
 // @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
 // @updateURL    https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
 // @downloadURL  https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
-// @version      0.58
+// @version      0.59
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -37,6 +37,7 @@ const killfile = [
     "Cupertino95014",
     "dixie_land",
     "dsfyu404ed",
+    "EGreg", // astroturfing as a service lol
     "Eleison23",
     "em_te", // https://news.ycombinator.com/item?id=33811314
     "ergocoder",

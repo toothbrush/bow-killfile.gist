@@ -4,49 +4,57 @@
 0xy
 Alex3917  # "blockchain [..] the most economically important invention of the last 500 years"
 AmericanChopper
-andrewclunn
 AnhTho_FR  # commercial spam
-alephnan
-anotherman554
 AtlasBarfed
 Banana699  # doesn't like Lisp
+CamperBob
+CamperBob2
+ChatGTP  # gibberish
+ClumsyPilot  # https://news.ycombinator.com/item?id=34034596
+Cupertino95014
+EGreg  # astroturfing as a service lol
+Eleison23
+Friederbasten  # wow, unbelievably mouth-frothing troll
+GoblinSlayer
+Gordonjcp
+HN_is_for_gemes  # sheesh
+Invictus0
+Jensson
+PaulHoule
+RadixDLT
+SemanticStrengh
+Terry_Roll
+YLYvYkHeB2NRNT  # wingnut
+Ygg2
+Zurrrrr
+alephnan
+andrewclunn
+anotherman554
 barry-cotter
 bko  # https://news.ycombinator.com/item?id=36514785
 blondin
 burrows
 bushbaba
 c3534l
-CamperBob
-CamperBob2
-ChatGTP  # gibberish
 chrisseaton
-ClumsyPilot  # https://news.ycombinator.com/item?id=34034596
 codetrotter  # https://news.ycombinator.com/item?id=35224371
 coolso
-Cupertino95014
 dixie_land
 dsfyu404ed
-EGreg  # astroturfing as a service lol
-Eleison23
 em_te  # https://news.ycombinator.com/item?id=33811314
 ergocoder
 fellowniusmonk
-Friederbasten  # wow, unbelievably mouth-frothing troll
 germandiago
-GoblinSlayer
-Gordonjcp
 gowld
-HN_is_for_gemes  # sheesh
-Invictus0
+hellbannedguy
+iambateman
 irrational  # hates wife
-Jensson
 jack_pp
 jodrellblank
 johnnyanmac
 jononomo  # tired of hearing about beef, liver, and eggs
 jupp0r
-hellbannedguy
-iambateman
+kertoip_1  # https://news.ycombinator.com/item?id=48543785
 logicchains
 loudthing
 metadat
@@ -57,20 +65,16 @@ notShabu  # "gold/bitcoin philosophers" omg lol
 onemiketwelve
 onlyrealcuzzo
 padolsey
-PaulHoule
 quantumBerry
-RadixDLT
+rStar
 randomdata
 raydiatian
 recuter
 redis-mic
 refulgentis
 rr888  # https://news.ycombinator.com/item?id=33923328
-rStar
 rurban
 scoot
-SemanticStrengh
-Terry_Roll
 thegrimmest
 thrown_22
 tssva  # https://news.ycombinator.com/item?id=36217580
@@ -82,8 +86,4 @@ wnevets
 wrycoder
 wyager
 xanaxagoras
-Ygg2
-YLYvYkHeB2NRNT  # wingnut
 zackees
-Zurrrrr
-kertoip_1  # https://news.ycombinator.com/item?id=48543785

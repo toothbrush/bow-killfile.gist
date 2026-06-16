@@ -3,7 +3,7 @@
 // @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
 // @updateURL    https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
 // @downloadURL  https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
-// @version      0.69
+// @version      0.70
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -274,7 +274,14 @@ function hideToast() { if (toastEl) toastEl.style.display = "none"; }
 
 /* ---------- menu commands ---------- */
 
-GM_registerMenuCommand("Set GitHub token…", function () {
+// Not every userscript host provides this (e.g. iOS Safari "Userscripts" has no
+// menu UI). Guard so a missing API degrades gracefully instead of throwing at
+// top level and aborting the whole script (styling/hiding included).
+function registerMenu(label, fn) {
+    if (typeof GM_registerMenuCommand === "function") GM_registerMenuCommand(label, fn);
+}
+
+registerMenu("Set GitHub token…", function () {
     const t = prompt("Fine-grained PAT, scoped to Gists: read/write ONLY. Blank to clear:", getToken());
     if (t === null) return;
     const trimmed = t.trim();
@@ -288,7 +295,7 @@ GM_registerMenuCommand("Set GitHub token…", function () {
     });
 });
 
-GM_registerMenuCommand("Killfile a user…", function () {
+registerMenu("Killfile a user…", function () {
     if (!canWrite()) { alert("Set a GitHub token first."); return; }
     const u = prompt("Username to killfile:");
     if (u && u.trim()) blockUser(u.trim(), null);

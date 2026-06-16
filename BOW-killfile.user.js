@@ -3,7 +3,7 @@
 // @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
 // @updateURL    https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
 // @downloadURL  https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
-// @version      0.70
+// @version      0.71
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -15,6 +15,7 @@
 // @grant        GM_deleteValue
 // @grant        GM_xmlhttpRequest
 // @grant        GM_registerMenuCommand
+// @grant        GM.xmlHttpRequest
 // @connect      api.github.com
 // @connect      gist.githubusercontent.com
 // @run-at       document-idle
@@ -45,9 +46,34 @@ const CACHE_TS_KEY = "killfile_cache_ts";
 
 let effectiveSet = new Set();
 
+/* ---------- GM API shims ----------
+ * Hosts vary in which GM_* APIs they expose. iOS Safari "Userscripts" provides
+ * GM_xmlhttpRequest but NOT the sync GM_* storage/menu APIs (only async GM.*).
+ * These wrappers degrade gracefully: a missing storage API just means "no
+ * persistent cache on this device" rather than a ReferenceError that aborts the
+ * whole script. Callers must therefore tolerate a storage miss — see
+ * refreshIfStale, which applies fetched content directly instead of re-reading.
+ */
+
+function gmGet(key, def) {
+    try { if (typeof GM_getValue === "function") return GM_getValue(key, def); } catch (e) {}
+    return def;
+}
+function gmSet(key, val) {
+    try { if (typeof GM_setValue === "function") GM_setValue(key, val); } catch (e) {}
+}
+function gmDelete(key) {
+    try { if (typeof GM_deleteValue === "function") GM_deleteValue(key); } catch (e) {}
+}
+function gmXhr(details) {
+    if (typeof GM_xmlhttpRequest === "function") return GM_xmlhttpRequest(details);
+    if (typeof GM !== "undefined" && GM && GM.xmlHttpRequest) return GM.xmlHttpRequest(details);
+    return null; // no cross-origin transport available; caller's onload simply never fires
+}
+
 /* ---------- token / write-capability ---------- */
 
-function getToken() { return GM_getValue(TOKEN_KEY, ""); }
+function getToken() { return gmGet(TOKEN_KEY, ""); }
 function canWrite() { return !!getToken(); }
 
 /* ---------- killfile parsing & cache ---------- */
@@ -62,24 +88,28 @@ function parseKillfile(text) {
 }
 
 function cacheKillfile(content) {
-    GM_setValue(CACHE_KEY, content);
-    GM_setValue(CACHE_TS_KEY, Date.now());
+    gmSet(CACHE_KEY, content);
+    gmSet(CACHE_TS_KEY, Date.now());
+}
+
+function applyKillfile(content) {
+    effectiveSet = new Set(parseKillfile(content));
+    rebuildHideStyle();
 }
 
 function loadEffectiveSet() {
-    effectiveSet = new Set(parseKillfile(GM_getValue(CACHE_KEY, "")));
+    applyKillfile(gmGet(CACHE_KEY, ""));
 }
 
 function refreshIfStale() {
-    if (Date.now() - GM_getValue(CACHE_TS_KEY, 0) < CACHE_TTL_MS) return;
-    GM_xmlhttpRequest({
+    if (Date.now() - gmGet(CACHE_TS_KEY, 0) < CACHE_TTL_MS) return;
+    gmXhr({
         method: "GET",
         url: RAW_URL,
         onload: function (res) {
             if (res.status >= 200 && res.status < 300) {
                 cacheKillfile(res.responseText);
-                loadEffectiveSet();
-                rebuildHideStyle();
+                applyKillfile(res.responseText); // use fetched content directly; storage may be a no-op (iOS)
             }
         },
     });
@@ -88,7 +118,7 @@ function refreshIfStale() {
 /* ---------- GitHub API (write path) ---------- */
 
 function ghApi(method, body, cb) {
-    GM_xmlhttpRequest({
+    gmXhr({
         method: method,
         url: API_URL,
         headers: {
@@ -285,8 +315,8 @@ registerMenu("Set GitHub token…", function () {
     const t = prompt("Fine-grained PAT, scoped to Gists: read/write ONLY. Blank to clear:", getToken());
     if (t === null) return;
     const trimmed = t.trim();
-    if (!trimmed) { GM_deleteValue(TOKEN_KEY); alert("Token cleared. Mute buttons hidden on this device."); return; }
-    GM_setValue(TOKEN_KEY, trimmed);
+    if (!trimmed) { gmDelete(TOKEN_KEY); alert("Token cleared. Mute buttons hidden on this device."); return; }
+    gmSet(TOKEN_KEY, trimmed);
     ghApi("GET", null, function (err, gist) { // validate at entry, not every page load
         if (err) { alert("⚠ Token saved but validation failed: " + err.message); return; }
         const ok = gist.files && gist.files[KILLFILE_FILENAME];
@@ -373,8 +403,7 @@ const boring_topics = [
 
 /* ---------- boot ---------- */
 
-loadEffectiveSet();   // synchronous, from cache: hide immediately, no flash
-rebuildHideStyle();
+loadEffectiveSet();   // synchronous, from cache: hide immediately, no flash (also rebuilds the style)
 addMuteButtons();
 refreshIfStale();     // async: pull latest killfile.txt, re-apply
 

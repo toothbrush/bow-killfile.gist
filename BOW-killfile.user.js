@@ -3,7 +3,7 @@
 // @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
 // @updateURL    https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
 // @downloadURL  https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
-// @version      0.68
+// @version      0.69
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -135,7 +135,25 @@ function appendToGist(username, commentId, cb) {
     mutateGist(function (content) {
         if (parseKillfile(content).includes(username)) return null;
         const note = commentId ? `  # https://news.ycombinator.com/item?id=${commentId}` : "";
-        return content.replace(/\s*$/, "") + "\n" + username + note + "\n";
+        const newLine = username + note;
+        const newKey = username.toLowerCase();
+
+        const lines = content.split("\n");
+        const isEntry = (line) => line.replace(/#.*$/, "").trim() !== "";
+        const keyOf = (line) => line.replace(/#.*$/, "").trim().toLowerCase();
+
+        // Insert in case-insensitive alphabetical order: before the first entry
+        // that sorts after us, else right after the last entry (skipping any
+        // header comments and trailing blank line).
+        let insertAt = -1, lastEntry = -1;
+        for (let i = 0; i < lines.length; i++) {
+            if (!isEntry(lines[i])) continue;
+            lastEntry = i;
+            if (insertAt === -1 && keyOf(lines[i]) > newKey) insertAt = i;
+        }
+        if (insertAt === -1) insertAt = lastEntry + 1;
+        lines.splice(insertAt, 0, newLine);
+        return lines.join("\n");
     }, cb);
 }
 
@@ -210,13 +228,19 @@ function addMuteButtons() {
             node = node.parentNode;
         }
 
-        const btn = document.createElement("a");
-        btn.textContent = "🔇";
-        btn.href = "javascript:void(0)";
-        btn.title = "Killfile " + username;
-        btn.style.cssText = "margin-left:4px;text-decoration:none;cursor:pointer;font-size:11px;";
-        btn.addEventListener("click", function (e) { e.preventDefault(); blockUser(username, commentId); });
-        el.parentNode.insertBefore(btn, el.nextSibling);
+        const link = document.createElement("a");
+        link.textContent = "mute";
+        link.href = "javascript:void(0)";
+        link.title = "Killfile " + username;
+        link.style.cssText = "cursor:pointer;";
+        link.addEventListener("click", function (e) { e.preventDefault(); blockUser(username, commentId); });
+
+        const wrap = document.createElement("span");
+        wrap.style.cssText = "margin-left:4px;font-size:11px;";
+        wrap.appendChild(document.createTextNode("["));
+        wrap.appendChild(link);
+        wrap.appendChild(document.createTextNode("]"));
+        el.parentNode.insertBefore(wrap, el.nextSibling);
     });
 }
 

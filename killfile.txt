@@ -1,0 +1,88 @@
+# BOW-killfile — one username per line.
+# Blank lines and text after `#` are ignored, so you can annotate freely.
+# Edited by the BOW-killfile userscript (desktop, via GitHub API) or by hand.
+0xy
+Alex3917  # "blockchain [..] the most economically important invention of the last 500 years"
+AmericanChopper
+andrewclunn
+AnhTho_FR  # commercial spam
+alephnan
+anotherman554
+AtlasBarfed
+Banana699  # doesn't like Lisp
+barry-cotter
+bko  # https://news.ycombinator.com/item?id=36514785
+blondin
+burrows
+bushbaba
+c3534l
+CamperBob
+CamperBob2
+ChatGTP  # gibberish
+chrisseaton
+ClumsyPilot  # https://news.ycombinator.com/item?id=34034596
+codetrotter  # https://news.ycombinator.com/item?id=35224371
+coolso
+Cupertino95014
+dixie_land
+dsfyu404ed
+EGreg  # astroturfing as a service lol
+Eleison23
+em_te  # https://news.ycombinator.com/item?id=33811314
+ergocoder
+fellowniusmonk
+Friederbasten  # wow, unbelievably mouth-frothing troll
+germandiago
+GoblinSlayer
+Gordonjcp
+gowld
+HN_is_for_gemes  # sheesh
+Invictus0
+irrational  # hates wife
+Jensson
+jack_pp
+jodrellblank
+johnnyanmac
+jononomo  # tired of hearing about beef, liver, and eggs
+jupp0r
+hellbannedguy
+iambateman
+logicchains
+loudthing
+metadat
+monero-xmr  # cartoonish economic liberal
+naikrovek
+nilespotter
+notShabu  # "gold/bitcoin philosophers" omg lol
+onemiketwelve
+onlyrealcuzzo
+padolsey
+PaulHoule
+quantumBerry
+RadixDLT
+randomdata
+raydiatian
+recuter
+redis-mic
+refulgentis
+rr888  # https://news.ycombinator.com/item?id=33923328
+rStar
+rurban
+scoot
+SemanticStrengh
+Terry_Roll
+thegrimmest
+thrown_22
+tssva  # https://news.ycombinator.com/item?id=36217580
+userbinator  # https://news.ycombinator.com/item?id=36221443
+vmception
+wara23arish
+white_dragon88
+wnevets
+wrycoder
+wyager
+xanaxagoras
+Ygg2
+YLYvYkHeB2NRNT  # wingnut
+zackees
+Zurrrrr

@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         BOW-killfile
-// @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
-// @updateURL    https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
-// @downloadURL  https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
-// @version      0.72
+// @namespace    https://github.com/toothbrush/bow-killfile.gist
+// @updateURL    https://raw.githubusercontent.com/toothbrush/bow-killfile.gist/main/BOW-killfile.user.js
+// @downloadURL  https://raw.githubusercontent.com/toothbrush/bow-killfile.gist/main/BOW-killfile.user.js
+// @version      0.73
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -17,25 +17,29 @@
 // @grant        GM_registerMenuCommand
 // @grant        GM.xmlHttpRequest
 // @connect      api.github.com
-// @connect      gist.githubusercontent.com
+// @connect      raw.githubusercontent.com
 // @run-at       document-idle
 // ==/UserScript==
 
 /*
- * Killfile lives in a separate plain-text file in the same gist (killfile.txt),
- * NOT in this script. Every device reads it; only devices with a GitHub token
- * configured can write back. Mobile is intentionally read-only (no secrets there).
+ * Killfile lives in a separate plain-text file in the same repo (killfile.txt),
+ * NOT in this script. Every device reads it (unauthenticated, via raw.github);
+ * only devices with a GitHub token configured can write back. Mobile is
+ * intentionally read-only (no secrets there). Writes go through the Contents API
+ * so each mute/unmute is a real commit with a descriptive message.
  *
  * To enable blocking on this device: Tampermonkey menu -> "Set GitHub token...".
- * Use a fine-grained PAT scoped to *Gists: read/write only* (nothing else) with an
- * expiry — if it ever leaks, the blast radius is "can edit my gists" and no more.
- * The token is stored in GM storage (sandboxed to this script), never in the gist.
+ * Use a fine-grained PAT scoped to this repo's *Contents: read/write only*
+ * (nothing else) with an expiry — if it ever leaks, the blast radius is "can edit
+ * this repo" and no more. The token is stored in GM storage (sandboxed to this
+ * script), never in the repo.
  */
 
-const GIST_ID = "364c15ec7192e60ffd94576773c4b99c";
+const REPO = "toothbrush/bow-killfile.gist";
+const BRANCH = "main";
 const KILLFILE_FILENAME = "killfile.txt";
-const RAW_URL = `https://gist.githubusercontent.com/toothbrush/${GIST_ID}/raw/${KILLFILE_FILENAME}`;
-const API_URL = `https://api.github.com/gists/${GIST_ID}`;
+const RAW_URL = `https://raw.githubusercontent.com/${REPO}/${BRANCH}/${KILLFILE_FILENAME}`;
+const API_URL = `https://api.github.com/repos/${REPO}/contents/${KILLFILE_FILENAME}`;
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
 const TOKEN_KEY = "gh_gist_token";
@@ -137,30 +141,36 @@ function ghApi(method, body, cb) {
     });
 }
 
-function patchGist(newContent, cb) {
-    const body = { files: {} };
-    body.files[KILLFILE_FILENAME] = { content: newContent };
-    ghApi("PATCH", body, function (err, gist) {
-        if (err) return cb(err);
-        const file = gist.files && gist.files[KILLFILE_FILENAME];
-        cacheKillfile(file ? file.content : newContent); // authoritative, sidesteps raw-CDN staleness
-        cb(null);
-    });
-}
+// UTF-8-safe base64 (the Contents API ships file bodies base64-encoded, with
+// newlines every 60 chars on the GET side that must be stripped before decode).
+function b64encode(str) { return btoa(unescape(encodeURIComponent(str))); }
+function b64decode(b64) { return decodeURIComponent(escape(atob(b64.replace(/\n/g, "")))); }
 
-// GET authoritative content -> transform -> PATCH. transform returns null to skip the write.
-function mutateGist(transform, cb) {
-    ghApi("GET", null, function (err, gist) {
+// GET authoritative content+sha -> transform -> PUT with a commit message.
+// transform returns null to skip the write. The PUT's optimistic-concurrency sha
+// guards against clobbering a write from another device between GET and PUT.
+function mutateGist(message, transform, cb) {
+    ghApi("GET", null, function (err, file) {
         if (err) return cb(err);
-        const file = gist.files && gist.files[KILLFILE_FILENAME];
-        const newContent = transform(file ? file.content : "");
+        const content = file && file.content ? b64decode(file.content) : "";
+        const newContent = transform(content);
         if (newContent === null) return cb(null);
-        patchGist(newContent, cb);
+        const body = {
+            message: message,
+            content: b64encode(newContent),
+            branch: BRANCH,
+        };
+        if (file && file.sha) body.sha = file.sha; // omit only when creating the file
+        ghApi("PUT", body, function (err2) {
+            if (err2) return cb(err2);
+            cacheKillfile(newContent); // we sent it; 2xx means it's authoritative
+            cb(null);
+        });
     });
 }
 
 function appendToGist(username, commentId, cb) {
-    mutateGist(function (content) {
+    mutateGist("killfile.txt: Add " + username, function (content) {
         if (parseKillfile(content).includes(username)) return null;
         const note = commentId ? `  # https://news.ycombinator.com/item?id=${commentId}` : "";
         const newLine = username + note;
@@ -186,7 +196,7 @@ function appendToGist(username, commentId, cb) {
 }
 
 function removeFromGist(username, cb) {
-    mutateGist(function (content) {
+    mutateGist("killfile.txt: Remove " + username, function (content) {
         return content.split("\n").filter(function (line) {
             return line.replace(/#.*$/, "").trim() !== username;
         }).join("\n");
@@ -310,16 +320,16 @@ function registerMenu(label, fn) {
 }
 
 registerMenu("Set GitHub token…", function () {
-    const t = prompt("Fine-grained PAT, scoped to Gists: read/write ONLY. Blank to clear:", getToken());
+    const t = prompt("Fine-grained PAT, scoped to this repo's Contents: read/write ONLY. Blank to clear:", getToken());
     if (t === null) return;
     const trimmed = t.trim();
     if (!trimmed) { gmDelete(TOKEN_KEY); alert("Token cleared. Mute buttons hidden on this device."); return; }
     gmSet(TOKEN_KEY, trimmed);
-    ghApi("GET", null, function (err, gist) { // validate at entry, not every page load
+    ghApi("GET", null, function (err, file) { // validate at entry, not every page load
         if (err) { alert("⚠ Token saved but validation failed: " + err.message); return; }
-        const ok = gist.files && gist.files[KILLFILE_FILENAME];
+        const ok = file && file.content;
         alert(ok ? "Token works. Reload HN to see mute buttons."
-                 : "Token works, but '" + KILLFILE_FILENAME + "' isn't in the gist yet — create it first.");
+                 : "Token works, but '" + KILLFILE_FILENAME + "' isn't in the repo yet — create it first.");
     });
 });
 

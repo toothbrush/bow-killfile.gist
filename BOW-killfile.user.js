@@ -3,7 +3,7 @@
 // @namespace    https://gist.github.com/toothbrush/364c15ec7192e60ffd94576773c4b99c
 // @updateURL    https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
 // @downloadURL  https://gist.githubusercontent.com/toothbrush/364c15ec7192e60ffd94576773c4b99c/raw/BOW-killfile.user.js
-// @version      0.71
+// @version      0.72
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -31,8 +31,6 @@
  * expiry — if it ever leaks, the blast radius is "can edit my gists" and no more.
  * The token is stored in GM storage (sandboxed to this script), never in the gist.
  */
-
-'use strict';
 
 const GIST_ID = "364c15ec7192e60ffd94576773c4b99c";
 const KILLFILE_FILENAME = "killfile.txt";

@@ -3,7 +3,7 @@
 // @namespace    https://github.com/toothbrush/bow-killfile.gist
 // @updateURL    https://raw.githubusercontent.com/toothbrush/bow-killfile.gist/main/BOW-killfile.user.js
 // @downloadURL  https://raw.githubusercontent.com/toothbrush/bow-killfile.gist/main/BOW-killfile.user.js
-// @version      0.73
+// @version      0.74
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -364,6 +364,19 @@ GM_addStyle(`.wrapper {
 GM_addStyle(`::selection { color: black; background: yellow; }`);
 GM_addStyle(`tr.spacer + tr.spacer { background: grey !important; display: none !important; }`);
 GM_addStyle(`body { background: black !important; }`);
+
+/* ---------- kill horizontal scroll ---------- */
+
+// Backstop: viewport never scrolls sideways.
+GM_addStyle(`html, body { max-width: 100%; overflow-x: hidden !important; }`);
+// HN forces min-width 796px on desktop.
+GM_addStyle(`#hnmain { min-width: 0 !important; max-width: 100% !important; }`);
+// Deep threads: cap indent spacer width.
+GM_addStyle(`td.ind img { max-width: 30vw !important; }`);
+// HN mobile makes links nowrap; wrap instead.
+GM_addStyle(`table.comment-tree .comment a { display: inline !important; max-width: none !important; white-space: normal !important; }`);
+GM_addStyle(`.comment, .commtext, .comhead, .title, .subtext, .toptext, .pagetop { overflow-wrap: anywhere; }`);
+GM_addStyle(`pre { max-width: 100% !important; }`);
 
 (function styleHeader() {
     const header = getElementByXpath('//*[@id="hnmain"]/tbody/tr/td');

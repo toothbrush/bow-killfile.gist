@@ -3,7 +3,7 @@
 // @namespace    https://github.com/toothbrush/bow-killfile.gist
 // @updateURL    https://raw.githubusercontent.com/toothbrush/bow-killfile.gist/main/BOW-killfile.user.js
 // @downloadURL  https://raw.githubusercontent.com/toothbrush/bow-killfile.gist/main/BOW-killfile.user.js
-// @version      0.74
+// @version      0.75
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -18,6 +18,7 @@
 // @grant        GM.xmlHttpRequest
 // @connect      api.github.com
 // @connect      raw.githubusercontent.com
+// @require      https://raw.githubusercontent.com/toothbrush/userscript-lib.gist/v2/synced-list.js
 // @run-at       document-idle
 // ==/UserScript==
 
@@ -28,6 +29,11 @@
  * intentionally read-only (no secrets there). Writes go through the Contents API
  * so each mute/unmute is a real commit with a descriptive message.
  *
+ * The plumbing for all that (GM shims, raw.github read, Contents API write,
+ * toast, token menu) is synced-list.js, shared with ennicen-guardian and
+ * loaded with @require. Hosts cache a @require by URL, so it is pinned to a
+ * tag; a library change is a new tag and a bump here.
+ *
  * To enable blocking on this device: Tampermonkey menu -> "Set GitHub token...".
  * Use a fine-grained PAT scoped to this repo's *Contents: read/write only*
  * (nothing else) with an expiry — if it ever leaks, the blast radius is "can edit
@@ -35,159 +41,41 @@
  * script), never in the repo.
  */
 
-const REPO = "toothbrush/bow-killfile.gist";
-const BRANCH = "main";
-const KILLFILE_FILENAME = "killfile.txt";
-const RAW_URL = `https://raw.githubusercontent.com/${REPO}/${BRANCH}/${KILLFILE_FILENAME}`;
-const API_URL = `https://api.github.com/repos/${REPO}/contents/${KILLFILE_FILENAME}`;
-const CACHE_TTL_MS = 5 * 60 * 1000;
-
-const TOKEN_KEY = "gh_gist_token";
-const CACHE_KEY = "killfile_cache";
-const CACHE_TS_KEY = "killfile_cache_ts";
+const killfile = new SyncedFile({
+    repo: "toothbrush/bow-killfile.gist",
+    file: "killfile.txt",
+    cacheKey: "killfile_cache",   // the keys older versions used, so a device keeps its cache
+    tokenKey: "gh_gist_token",    // and its token across the move to the library
+    tag: "bow",
+});
 
 let effectiveSet = new Set();
 
-/* ---------- GM API shims ----------
- * Hosts vary in which GM_* APIs they expose. iOS Safari "Userscripts" provides
- * GM_xmlhttpRequest but NOT the sync GM_* storage/menu APIs (only async GM.*).
- * These wrappers degrade gracefully: a missing storage API just means "no
- * persistent cache on this device" rather than a ReferenceError that aborts the
- * whole script. Callers must therefore tolerate a storage miss — see
- * refreshIfStale, which applies fetched content directly instead of re-reading.
- */
+function canWrite() { return killfile.canWrite(); }
 
-function gmGet(key, def) {
-    try { if (typeof GM_getValue === "function") return GM_getValue(key, def); } catch (e) {}
-    return def;
-}
-function gmSet(key, val) {
-    try { if (typeof GM_setValue === "function") GM_setValue(key, val); } catch (e) {}
-}
-function gmDelete(key) {
-    try { if (typeof GM_deleteValue === "function") GM_deleteValue(key); } catch (e) {}
-}
-function gmXhr(details) {
-    if (typeof GM_xmlhttpRequest === "function") return GM_xmlhttpRequest(details);
-    if (typeof GM !== "undefined" && GM && GM.xmlHttpRequest) return GM.xmlHttpRequest(details);
-    return null; // no cross-origin transport available; caller's onload simply never fires
-}
-
-/* ---------- token / write-capability ---------- */
-
-function getToken() { return gmGet(TOKEN_KEY, ""); }
-function canWrite() { return !!getToken(); }
-
-/* ---------- killfile parsing & cache ---------- */
-
-function parseKillfile(text) {
-    const names = [];
-    text.split("\n").forEach(function (raw) {
-        const name = raw.replace(/#.*$/, "").trim(); // strip inline `# comment`
-        if (name) names.push(name);
-    });
-    return names;
-}
-
-function cacheKillfile(content) {
-    gmSet(CACHE_KEY, content);
-    gmSet(CACHE_TS_KEY, Date.now());
-}
+/* ---------- killfile: one username per line, `# note` allowed ---------- */
 
 function applyKillfile(content) {
-    effectiveSet = new Set(parseKillfile(content));
+    effectiveSet = new Set(parseLines(content));
     rebuildHideStyle();
 }
 
-function loadEffectiveSet() {
-    applyKillfile(gmGet(CACHE_KEY, ""));
-}
-
-function refreshIfStale() {
-    if (Date.now() - gmGet(CACHE_TS_KEY, 0) < CACHE_TTL_MS) return;
-    gmXhr({
-        method: "GET",
-        url: RAW_URL,
-        onload: function (res) {
-            if (res.status >= 200 && res.status < 300) {
-                cacheKillfile(res.responseText);
-                applyKillfile(res.responseText); // use fetched content directly; storage may be a no-op (iOS)
-            }
-        },
-    });
-}
-
-/* ---------- GitHub API (write path) ---------- */
-
-function ghApi(method, body, cb) {
-    gmXhr({
-        method: method,
-        url: API_URL,
-        headers: {
-            "Authorization": "Bearer " + getToken(),
-            "Accept": "application/vnd.github+json",
-            "X-GitHub-Api-Version": "2022-11-28",
-        },
-        data: body ? JSON.stringify(body) : undefined,
-        onload: function (res) {
-            if (res.status >= 200 && res.status < 300) {
-                try { cb(null, JSON.parse(res.responseText)); }
-                catch (e) { cb(new Error("bad JSON from GitHub")); }
-            } else {
-                cb(new Error("GitHub " + res.status));
-            }
-        },
-        onerror: function () { cb(new Error("network error")); },
-    });
-}
-
-// UTF-8-safe base64 (the Contents API ships file bodies base64-encoded, with
-// newlines every 60 chars on the GET side that must be stripped before decode).
-function b64encode(str) { return btoa(unescape(encodeURIComponent(str))); }
-function b64decode(b64) { return decodeURIComponent(escape(atob(b64.replace(/\n/g, "")))); }
-
-// GET authoritative content+sha -> transform -> PUT with a commit message.
-// transform returns null to skip the write. The PUT's optimistic-concurrency sha
-// guards against clobbering a write from another device between GET and PUT.
-function mutateGist(message, transform, cb) {
-    ghApi("GET", null, function (err, file) {
-        if (err) return cb(err);
-        const content = file && file.content ? b64decode(file.content) : "";
-        const newContent = transform(content);
-        if (newContent === null) return cb(null);
-        const body = {
-            message: message,
-            content: b64encode(newContent),
-            branch: BRANCH,
-        };
-        if (file && file.sha) body.sha = file.sha; // omit only when creating the file
-        ghApi("PUT", body, function (err2) {
-            if (err2) return cb(err2);
-            cacheKillfile(newContent); // we sent it; 2xx means it's authoritative
-            cb(null);
-        });
-    });
-}
-
+// Insert in case-insensitive alphabetical order: before the first entry that
+// sorts after us, else right after the last entry (skipping header comments
+// and any trailing blank line). Each mute is one commit.
 function appendToGist(username, commentId, cb) {
-    mutateGist("killfile.txt: Add " + username, function (content) {
-        if (parseKillfile(content).includes(username)) return null;
+    killfile.mutate("killfile.txt: Add " + username, function (content) {
+        if (parseLines(content).includes(username)) return null;
         const note = commentId ? `  # https://news.ycombinator.com/item?id=${commentId}` : "";
         const newLine = username + note;
         const newKey = username.toLowerCase();
-
         const lines = content.split("\n");
-        const isEntry = (line) => line.replace(/#.*$/, "").trim() !== "";
-        const keyOf = (line) => line.replace(/#.*$/, "").trim().toLowerCase();
-
-        // Insert in case-insensitive alphabetical order: before the first entry
-        // that sorts after us, else right after the last entry (skipping any
-        // header comments and trailing blank line).
         let insertAt = -1, lastEntry = -1;
         for (let i = 0; i < lines.length; i++) {
-            if (!isEntry(lines[i])) continue;
+            const key = stripComment(lines[i]).toLowerCase();
+            if (!key) continue;
             lastEntry = i;
-            if (insertAt === -1 && keyOf(lines[i]) > newKey) insertAt = i;
+            if (insertAt === -1 && key > newKey) insertAt = i;
         }
         if (insertAt === -1) insertAt = lastEntry + 1;
         lines.splice(insertAt, 0, newLine);
@@ -196,11 +84,7 @@ function appendToGist(username, commentId, cb) {
 }
 
 function removeFromGist(username, cb) {
-    mutateGist("killfile.txt: Remove " + username, function (content) {
-        return content.split("\n").filter(function (line) {
-            return line.replace(/#.*$/, "").trim() !== username;
-        }).join("\n");
-    }, cb);
+    killfile.removeLine(username, "killfile.txt: Remove " + username, cb);
 }
 
 /* ---------- block / unblock ---------- */
@@ -282,56 +166,9 @@ function addMuteButtons() {
     });
 }
 
-/* ---------- toast / undo ---------- */
-
-let toastEl = null, toastTimer = null;
-
-function showToast(msg, actionLabel, actionFn) {
-    if (!toastEl) {
-        toastEl = document.createElement("div");
-        toastEl.style.cssText = "position:fixed;left:50%;bottom:24px;transform:translateX(-50%);" +
-            "z-index:2147483647;background:#222;color:#fff;padding:10px 14px;border-radius:6px;" +
-            "font:14px/1.3 sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.4);max-width:90vw;";
-        document.body.appendChild(toastEl);
-    }
-    toastEl.textContent = msg + " ";
-    if (actionLabel && actionFn) {
-        const a = document.createElement("a");
-        a.textContent = actionLabel;
-        a.href = "javascript:void(0)";
-        a.style.cssText = "color:#6cf;margin-left:8px;cursor:pointer;font-weight:bold;";
-        a.addEventListener("click", function (e) { e.preventDefault(); hideToast(); actionFn(); });
-        toastEl.appendChild(a);
-    }
-    toastEl.style.display = "block";
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(hideToast, 6000);
-}
-
-function hideToast() { if (toastEl) toastEl.style.display = "none"; }
-
 /* ---------- menu commands ---------- */
 
-// Not every userscript host provides this (e.g. iOS Safari "Userscripts" has no
-// menu UI). Guard so a missing API degrades gracefully instead of throwing at
-// top level and aborting the whole script (styling/hiding included).
-function registerMenu(label, fn) {
-    if (typeof GM_registerMenuCommand === "function") GM_registerMenuCommand(label, fn);
-}
-
-registerMenu("Set GitHub token…", function () {
-    const t = prompt("Fine-grained PAT, scoped to this repo's Contents: read/write ONLY. Blank to clear:", getToken());
-    if (t === null) return;
-    const trimmed = t.trim();
-    if (!trimmed) { gmDelete(TOKEN_KEY); alert("Token cleared. Mute buttons hidden on this device."); return; }
-    gmSet(TOKEN_KEY, trimmed);
-    ghApi("GET", null, function (err, file) { // validate at entry, not every page load
-        if (err) { alert("⚠ Token saved but validation failed: " + err.message); return; }
-        const ok = file && file.content;
-        alert(ok ? "Token works. Reload HN to see mute buttons."
-                 : "Token works, but '" + KILLFILE_FILENAME + "' isn't in the repo yet — create it first.");
-    });
-});
+killfile.registerTokenMenu(); // "Set GitHub token…", validated at entry
 
 registerMenu("Killfile a user…", function () {
     if (!canWrite()) { alert("Set a GitHub token first."); return; }
@@ -424,9 +261,8 @@ const boring_topics = [
 
 /* ---------- boot ---------- */
 
-loadEffectiveSet();   // synchronous, from cache: hide immediately, no flash (also rebuilds the style)
+killfile.load(applyKillfile);   // from cache now (no flash), fresh killfile.txt when stale
 addMuteButtons();
-refreshIfStale();     // async: pull latest killfile.txt, re-apply
 
 /* ---------- mutation observer: re-apply on HN re-renders + text replacement ---------- */
 

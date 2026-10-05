@@ -3,7 +3,7 @@
 // @namespace    https://github.com/toothbrush/bow-killfile.gist
 // @updateURL    https://raw.githubusercontent.com/toothbrush/bow-killfile.gist/main/BOW-killfile.user.js
 // @downloadURL  https://raw.githubusercontent.com/toothbrush/bow-killfile.gist/main/BOW-killfile.user.js
-// @version      0.75
+// @version      0.76
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -13,12 +13,15 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_deleteValue
+// @grant        GM.getValue
+// @grant        GM.setValue
+// @grant        GM.deleteValue
 // @grant        GM_xmlhttpRequest
 // @grant        GM_registerMenuCommand
 // @grant        GM.xmlHttpRequest
 // @connect      api.github.com
 // @connect      raw.githubusercontent.com
-// @require      https://raw.githubusercontent.com/toothbrush/userscript-lib.gist/v2/synced-list.js
+// @require      https://raw.githubusercontent.com/toothbrush/userscript-lib.gist/v3/synced-list.js
 // @run-at       document-idle
 // ==/UserScript==
 

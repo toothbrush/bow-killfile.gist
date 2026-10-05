@@ -3,7 +3,7 @@
 // @namespace    https://github.com/toothbrush/bow-killfile.gist
 // @updateURL    https://raw.githubusercontent.com/toothbrush/bow-killfile.gist/main/BOW-killfile.user.js
 // @downloadURL  https://raw.githubusercontent.com/toothbrush/bow-killfile.gist/main/BOW-killfile.user.js
-// @version      0.77
+// @version      0.78
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -204,6 +204,10 @@ GM_addStyle(`.wrapper {
 GM_addStyle(`::selection { color: black; background: yellow; }`);
 GM_addStyle(`tr.spacer + tr.spacer { background: grey !important; display: none !important; }`);
 GM_addStyle(`body { background: black !important; }`);
+// Synthesised dark mode: HN is light-only. Everything inverts, including the
+// root background and the black body, so both are set to white here.
+GM_addStyle(`@media (prefers-color-scheme: dark) { html { filter: invert(1) hue-rotate(180deg); background: #fff; } body { background: white !important; } }`);
+GM_addStyle(`@media (prefers-color-scheme: dark) { img, picture, video, iframe { filter: invert(1) hue-rotate(180deg); } }`);
 
 /* ---------- kill horizontal scroll ---------- */
 

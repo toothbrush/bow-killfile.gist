@@ -3,7 +3,7 @@
 // @namespace    https://github.com/toothbrush/bow-killfile.gist
 // @updateURL    https://raw.githubusercontent.com/toothbrush/bow-killfile.gist/main/BOW-killfile.user.js
 // @downloadURL  https://raw.githubusercontent.com/toothbrush/bow-killfile.gist/main/BOW-killfile.user.js
-// @version      0.76
+// @version      0.77
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -283,6 +283,7 @@ const replaceArry = [
     [/\bcloud\b/g, "other people's computer"],
     [/\bCloud\b/g, "Other People's Computer"],
     [/\bGPT\b/g, 'Magic'],
+    [/\ban AI\b/g, 'a MAGIC'],
     [/\bAI\b/g, 'MAGIC'],
     [/\bOpenAI\b/gi, 'Open Art Thieves'],
     [/\b(an? )?LLM\b/g, 'pixie dust'],

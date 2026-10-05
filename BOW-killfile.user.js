@@ -3,7 +3,7 @@
 // @namespace    https://github.com/toothbrush/bow-killfile.gist
 // @updateURL    https://raw.githubusercontent.com/toothbrush/bow-killfile.gist/main/BOW-killfile.user.js
 // @downloadURL  https://raw.githubusercontent.com/toothbrush/bow-killfile.gist/main/BOW-killfile.user.js
-// @version      0.78
+// @version      0.79
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -21,7 +21,8 @@
 // @grant        GM.xmlHttpRequest
 // @connect      api.github.com
 // @connect      raw.githubusercontent.com
-// @require      https://raw.githubusercontent.com/toothbrush/userscript-lib.gist/v3/synced-list.js
+// @require      https://raw.githubusercontent.com/toothbrush/userscript-lib.gist/v4/synced-list.js
+// @require      https://raw.githubusercontent.com/toothbrush/userscript-lib.gist/v4/no-hscroll.js
 // @run-at       document-idle
 // ==/UserScript==
 
@@ -211,8 +212,7 @@ GM_addStyle(`@media (prefers-color-scheme: dark) { img, picture, video, iframe {
 
 /* ---------- kill horizontal scroll ---------- */
 
-// Backstop: viewport never scrolls sideways.
-GM_addStyle(`html, body { max-width: 100%; overflow-x: hidden !important; }`);
+// The viewport itself is pinned by no-hscroll.js (@require).
 // HN forces min-width 796px on desktop.
 GM_addStyle(`#hnmain { min-width: 0 !important; max-width: 100% !important; }`);
 // Deep threads: cap indent spacer width.

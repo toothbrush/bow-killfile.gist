@@ -3,7 +3,7 @@
 // @namespace    https://github.com/toothbrush/bow-killfile.gist
 // @updateURL    https://raw.githubusercontent.com/toothbrush/bow-killfile.gist/main/BOW-killfile.user.js
 // @downloadURL  https://raw.githubusercontent.com/toothbrush/bow-killfile.gist/main/BOW-killfile.user.js
-// @version      0.79
+// @version      0.80
 // @description  block trolls
 // @author       toothbrush
 // @match        https://news.ycombinator.com/item*
@@ -203,6 +203,8 @@ GM_addStyle(`.wrapper {
   background-size: 100% 100%;
 }`);
 GM_addStyle(`::selection { color: black; background: yellow; }`);
+// iOS ignores ::selection; a tap sets sticky :hover
+GM_addStyle(`@media (hover: none) { .commtext:hover { color: black !important; } }`);
 GM_addStyle(`tr.spacer + tr.spacer { background: grey !important; display: none !important; }`);
 GM_addStyle(`body { background: black !important; }`);
 // Synthesised dark mode: HN is light-only. Everything inverts, including the
